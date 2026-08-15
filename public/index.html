@@ -168,6 +168,8 @@
         </select>
       </div>
     </div>
+    <button class="btn-meal" style="margin-top:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5)" onclick="saveVitalsOnly()">体の状態を保存する</button>
+    <div id="vitals_saved" style="display:none;margin-top:8px;text-align:center;font-size:0.85em;color:#16a34a;font-weight:600">✓ 保存しました</div>
   </div>
 
   <!-- 朝食 -->
@@ -302,13 +304,14 @@ function saveTodayData(update) {
 }
 
 function updateHistory(data) {
+  if (!data.hrv) return;
   const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
   const dateKey = new Date().toISOString().slice(0, 10);
   const entry = {
     dateKey, date: new Date().toISOString(),
     hrv: data.hrv, hr: data.hr, sleep: data.sleep,
-    fatigue: data.fatigue, exercise: data.exercise,
-    advice: data.latest_advice,
+    fatigue: data.fatigue, exercise: data.exercise, drinking: data.drinking,
+    advice: data.latest_advice || null,
     score: data.food_score ? data.food_score.total : null
   };
   const idx = history.findIndex(h => h.dateKey === dateKey);
@@ -316,6 +319,22 @@ function updateHistory(data) {
   else history.unshift(entry);
   if (history.length > 90) history.pop();
   localStorage.setItem('recovery_history', JSON.stringify(history));
+}
+
+function saveVitalsOnly() {
+  const vitals = {
+    hrv: document.getElementById('hrv').value,
+    hr: document.getElementById('hr').value,
+    sleep: document.getElementById('sleep').value,
+    fatigue: document.getElementById('fatigue').value,
+    exercise: document.getElementById('exercise').value,
+    drinking: document.getElementById('drinking').value,
+  };
+  saveTodayData(vitals);
+  updateHistory({ ...getTodayData(), latest_advice: getTodayData().latest_advice || null });
+  const msg = document.getElementById('vitals_saved');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 2000);
 }
 
 async function recordMeal(meal) {
