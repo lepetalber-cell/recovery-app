@@ -30,7 +30,7 @@ function callClaude(messages, maxTokens = 800) {
       path: '/v1/messages',
       method: 'POST',
       headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': (process.env.ANTHROPIC_API_KEY || '').trim(),
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
         'content-length': bodyBuffer.length
