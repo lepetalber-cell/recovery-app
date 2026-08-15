@@ -1,47 +1,80 @@
 require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
-const Anthropic = require('@anthropic-ai/sdk');
+const https = require('https');
 const fs = require('fs');
-const path = require('path');
 
 const app = express();
+app.disable('etag');
 const upload = multer({ dest: 'uploads/' });
 const uploadFields = upload.fields([
   { name: 'food_morning', maxCount: 1 },
   { name: 'food_lunch', maxCount: 1 },
   { name: 'food_dinner', maxCount: 1 }
 ]);
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-app.disable('etag');
 app.use(express.json());
 app.use(express.static('public'));
 
+// Anthropic API を SDK を使わず直接呼ぶ
+function callClaude(messages, maxTokens = 800) {
+  return new Promise((resolve, reject) => {
+    const bodyBuffer = Buffer.from(JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: maxTokens,
+      messages
+    }), 'utf8');
+
+    const req = https.request({
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'content-length': bodyBuffer.length
+      }
+    }, (res) => {
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.error) reject(new Error(parsed.error.message));
+          else resolve(parsed.content[0].text);
+        } catch(e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.write(bodyBuffer);
+    req.end();
+  });
+}
+
 async function analyzeMealImage(filePath, mimeType, mealName) {
-  const imageData = fs.readFileSync(filePath);
-  const base64Image = imageData.toString('base64');
+  const base64Image = fs.readFileSync(filePath).toString('base64');
   fs.unlinkSync(filePath);
 
-  const res = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 400,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64Image } },
-        { type: 'text', text: `これは${mealName}の写真です。料理名と栄養の特徴を1〜2文で簡潔に日本語で説明してください。` }
-      ]
-    }]
-  });
-  return res.content[0].text;
+  const text = await callClaude([{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64Image } },
+      { type: 'text', text: `これは${mealName}の写真です。料理名と栄養の特徴を1〜2文で簡潔に日本語で説明してください。` }
+    ]
+  }], 400);
+  return text;
+}
+
+function jsonResponse(res, status, data) {
+  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(Buffer.from(JSON.stringify(data), 'utf8'));
 }
 
 app.post('/api/analyze', uploadFields, async (req, res) => {
   try {
-    console.log('STEP1: body received');
     const { hrv, hr, sleep, exercise, fatigue, drinking, memo_morning, memo_lunch, memo_dinner } = req.body;
-    console.log('STEP2: fields parsed', { hrv, sleep, exercise, drinking });
     const files = req.files || {};
     const mealSummaries = [];
 
@@ -70,13 +103,7 @@ app.post('/api/analyze', uploadFields, async (req, res) => {
       ? mealSummaries.map(m => `${m.label}：${m.summary}`).join('\n')
       : '記録なし';
 
-    console.log('STEP3: calling Claude API, mealText length:', mealText.length);
-    const adviceRes = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
-      messages: [{
-        role: 'user',
-        content: `あなたは50代男性専門のリカバリーコーチです。以下のデータを元に、今日の体の状態への具体的なアドバイスを日本語で書いてください。
+    const prompt = `あなたは50代男性専門のリカバリーコーチです。以下のデータを元に、今日の体の状態への具体的なアドバイスを日本語で書いてください。
 
 【体の状態】
 HRV: ${hrv || '未計測'}
@@ -92,13 +119,10 @@ ${mealText}
 アドバイスは3〜4文で、食事とHRVの関係にも触れてください。前向きで具体的な内容にしてください。
 
 アドバイスの後、必ず最後の行に以下の形式だけで出力してください（説明不要）:
-FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
-      }]
-    });
+FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`;
 
-    console.log('STEP4: Claude API responded');
-    const fullText = adviceRes.content[0].text;
-    console.log('STEP5: fullText length:', fullText.length);
+    const fullText = await callClaude([{ role: 'user', content: prompt }], 1000);
+
     const scoreMatch = fullText.match(/FOOD_SCORE:\s*\{\s*"ai"\s*:\s*(\d+)\s*,\s*"gut"\s*:\s*(\d+)\s*\}/);
     let score = null;
     if (scoreMatch) {
@@ -107,35 +131,25 @@ FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
       score = { ai, gut, total: Math.round((ai + gut) / 2) };
     }
     const advice = fullText.replace(/\n*FOOD_SCORE:[\s\S]*$/, '').trim();
-    console.log('advice length:', advice.length, 'score:', score);
 
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.end(Buffer.from(JSON.stringify({ meals: mealSummaries, advice, score }), 'utf8'));
+    jsonResponse(res, 200, { meals: mealSummaries, advice, score });
 
   } catch (err) {
     console.error('ERROR:', err.stack || err.message);
-    try {
-      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ error: err.message, stack: (err.stack || '').split('\n').slice(0,4).join(' | ') }));
-    } catch(e2) { console.error('send failed:', e2.message); }
+    jsonResponse(res, 500, { error: err.message });
   }
 });
 
 app.post('/api/weekly-report', async (req, res) => {
   try {
     const { records } = req.body;
-    if (!records || !records.length) return res.status(400).json({ error: 'データがありません' });
+    if (!records || !records.length) return jsonResponse(res, 400, { error: 'データがありません' });
 
     const dataText = records.map(r =>
       `${r.dateStr}: HRV ${r.hrv || '未計測'}, 睡眠 ${r.sleep || '?'}時間, 運動 ${r.exercise || 'なし'}${r.score ? `, 食事スコア ${r.score}点` : ''}`
     ).join('\n');
 
-    const reportRes = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `あなたは50代男性（断酒中・毎日サーフィン）のリカバリーデータをもとに、note記事の下書きを作成するライターです。
+    const prompt = `あなたは50代男性（断酒中・毎日サーフィン）のリカバリーデータをもとに、note記事の下書きを作成するライターです。
 
 【今週のデータ】
 ${dataText}
@@ -149,15 +163,14 @@ ${dataText}
 - 食事と体の状態の気づき
 - 来週へのメッセージ
 
-読者は40〜60代男性で、健康に関心があるが難しい話は苦手。データを「自分ごと」として読める、温かく等身大のトーンで書いてください。`
-      }]
-    });
+読者は40〜60代男性で、健康に関心があるが難しい話は苦手。データを「自分ごと」として読める、温かく等身大のトーンで書いてください。`;
 
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.end(Buffer.from(JSON.stringify({ report: reportRes.content[0].text }), 'utf8'));
+    const report = await callClaude([{ role: 'user', content: prompt }], 2000);
+    jsonResponse(res, 200, { report });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error('ERROR:', err.stack || err.message);
+    jsonResponse(res, 500, { error: err.message });
   }
 });
 
