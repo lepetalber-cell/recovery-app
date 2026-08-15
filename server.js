@@ -39,7 +39,9 @@ async function analyzeMealImage(filePath, mimeType, mealName) {
 
 app.post('/api/analyze', uploadFields, async (req, res) => {
   try {
+    console.log('STEP1: body received');
     const { hrv, hr, sleep, exercise, fatigue, drinking, memo_morning, memo_lunch, memo_dinner } = req.body;
+    console.log('STEP2: fields parsed', { hrv, sleep, exercise, drinking });
     const files = req.files || {};
     const mealSummaries = [];
 
@@ -68,6 +70,7 @@ app.post('/api/analyze', uploadFields, async (req, res) => {
       ? mealSummaries.map(m => `${m.label}：${m.summary}`).join('\n')
       : '記録なし';
 
+    console.log('STEP3: calling Claude API, mealText length:', mealText.length);
     const adviceRes = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1000,
@@ -93,7 +96,9 @@ FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
       }]
     });
 
+    console.log('STEP4: Claude API responded');
     const fullText = adviceRes.content[0].text;
+    console.log('STEP5: fullText length:', fullText.length);
     const scoreMatch = fullText.match(/FOOD_SCORE:\s*\{\s*"ai"\s*:\s*(\d+)\s*,\s*"gut"\s*:\s*(\d+)\s*\}/);
     let score = null;
     if (scoreMatch) {
@@ -108,8 +113,11 @@ FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
     res.end(Buffer.from(JSON.stringify({ meals: mealSummaries, advice, score }), 'utf8'));
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error('ERROR:', err.stack || err.message);
+    try {
+      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: err.message, stack: (err.stack || '').split('\n').slice(0,4).join(' | ') }));
+    } catch(e2) { console.error('send failed:', e2.message); }
   }
 });
 
