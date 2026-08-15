@@ -24,12 +24,11 @@
 
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 0.82em; color: #64748b; font-weight: 600; margin-bottom: 5px; }
-  .field input, .field select, .field textarea {
+  .field input, .field select {
     width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
     font-size: 1em; background: #f8fafc; transition: border 0.2s;
   }
-  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #0369a1; background: white; }
-  .field textarea { height: 80px; resize: none; }
+  .field input:focus, .field select:focus { outline: none; border-color: #0369a1; background: white; }
 
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -42,57 +41,54 @@
   .photo-area img { max-width: 100%; border-radius: 8px; display: block; }
   .photo-area .icon { font-size: 2em; margin-bottom: 8px; }
   .photo-area p { font-size: 0.85em; color: #94a3b8; }
-  #photoInput { display: none; }
 
-  .btn-primary {
-    width: 100%; padding: 15px; background: linear-gradient(135deg, #0ea5e9, #0369a1);
-    color: white; border: none; border-radius: 10px; font-size: 1.05em;
-    font-weight: 700; cursor: pointer; margin-top: 4px;
+  .btn-meal {
+    width: 100%; padding: 12px; background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    color: white; border: none; border-radius: 10px; font-size: 0.95em;
+    font-weight: 700; cursor: pointer; margin-top: 10px;
   }
-  .btn-primary:disabled { opacity: 0.6; }
+  .btn-meal:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-meal.done { background: linear-gradient(135deg, #22c55e, #16a34a); }
 
-  .advice-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 12px; padding: 18px; border-left: 4px solid #0369a1; }
+  .meal-done-box { background: #f0fdf4; border-radius: 10px; padding: 12px; margin-top: 10px; border-left: 3px solid #22c55e; }
+  .meal-done-box .done-label { font-size: 0.78em; color: #16a34a; font-weight: 700; margin-bottom: 4px; }
+  .meal-done-box p { font-size: 0.85em; color: #166534; line-height: 1.6; }
+
+  .advice-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 12px; padding: 18px; border-left: 4px solid #0369a1; margin-top: 14px; }
   .advice-box .label { font-size: 0.78em; color: #0369a1; font-weight: 700; margin-bottom: 8px; }
   .advice-box p { font-size: 0.95em; line-height: 1.8; color: #1e3a5f; }
 
-  .food-result { background: #f0fdf4; border-radius: 10px; padding: 14px; margin-top: 12px; border-left: 4px solid #22c55e; }
-  .food-result .label { font-size: 0.78em; color: #16a34a; font-weight: 700; margin-bottom: 6px; }
-
-  .loading { text-align: center; padding: 30px; }
-  .loading .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #0369a1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  .loading-inline { display: flex; align-items: center; gap: 10px; padding: 12px 0; }
+  .spinner-sm { width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0369a1; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading p { color: #64748b; font-size: 0.9em; }
-
-  .history-item { background: white; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-  .history-item .date { font-size: 0.78em; color: #94a3b8; margin-bottom: 6px; }
-  .history-item .hrv-badge { display: inline-block; background: #0369a1; color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.85em; font-weight: 700; margin-bottom: 8px; }
-  .history-item .adv { font-size: 0.85em; color: #475569; line-height: 1.7; }
-
-  .empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
-  .empty .icon { font-size: 3em; margin-bottom: 12px; }
 
   .hrv-display { text-align: center; padding: 8px 0; }
   .hrv-display .num { font-size: 3em; font-weight: 700; color: #0369a1; }
   .hrv-display .sub { font-size: 0.8em; color: #94a3b8; }
-
   .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   .tag { background: #e0f2fe; color: #0369a1; border-radius: 20px; padding: 3px 10px; font-size: 0.78em; font-weight: 600; }
-  .meal-section { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
-  .meal-label { font-size: 0.88em; font-weight: 700; color: #0369a1; margin-bottom: 8px; }
-  .meal-result { background: #f0fdf4; border-radius: 8px; padding: 10px 12px; margin-top: 10px; border-left: 3px solid #22c55e; font-size: 0.85em; color: #166534; line-height: 1.6; }
+  .meal-result { background: #f0fdf4; border-radius: 8px; padding: 10px 12px; margin-top: 8px; border-left: 3px solid #22c55e; font-size: 0.85em; color: #166534; line-height: 1.6; }
+
+  .history-item { background: white; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .history-item .date { font-size: 0.78em; color: #94a3b8; margin-bottom: 6px; }
+  .history-item .hrv-badge { display: inline-block; background: #0369a1; color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.85em; font-weight: 700; margin-bottom: 8px; }
+  .history-item .adv { font-size: 0.85em; color: #475569; line-height: 1.7; margin-top: 6px; }
+
+  .empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
+  .empty .icon { font-size: 3em; margin-bottom: 12px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>🌊 AIリカバリーコーチ</h1>
-  <p>毎日の体の状態を記録・分析</p>
+  <p id="headerDate">毎日の体の状態を記録・分析</p>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="showPage('input')">今日の記録</div>
-  <div class="tab" onclick="showPage('result')">AIアドバイス</div>
-  <div class="tab" onclick="showPage('history')">履歴</div>
+  <div class="tab active" onclick="showPage('input', this)">今日の記録</div>
+  <div class="tab" onclick="showPage('result', this)">AIアドバイス</div>
+  <div class="tab" onclick="showPage('history', this)">履歴</div>
 </div>
 
 <!-- 入力ページ -->
@@ -125,7 +121,7 @@
         </select>
       </div>
     </div>
-    <div class="field">
+    <div class="field" style="margin-bottom:0">
       <label>運動</label>
       <select id="exercise">
         <option value="なし">なし</option>
@@ -137,46 +133,47 @@
     </div>
   </div>
 
+  <!-- 朝食 -->
   <div class="card">
-    <h2>食事の記録（任意）</h2>
-
-    <div class="meal-section">
-      <div class="meal-label">🌅 朝食</div>
-      <div class="photo-area" id="photoArea_morning" onclick="document.getElementById('photo_morning').click()">
-        <div class="icon">📷</div><p>写真を追加</p>
-      </div>
-      <input type="file" id="photo_morning" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_morning')">
-      <div class="field" style="margin-top:8px">
-        <input type="text" id="memo_morning" placeholder="例：納豆ご飯、味噌汁">
-      </div>
+    <h2>🌅 朝食</h2>
+    <div class="photo-area" id="photoArea_morning" onclick="document.getElementById('photo_morning').click()">
+      <div class="icon">📷</div><p>写真を追加</p>
     </div>
-
-    <div class="meal-section">
-      <div class="meal-label">☀️ 昼食</div>
-      <div class="photo-area" id="photoArea_lunch" onclick="document.getElementById('photo_lunch').click()">
-        <div class="icon">📷</div><p>写真を追加</p>
-      </div>
-      <input type="file" id="photo_lunch" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_lunch')">
-      <div class="field" style="margin-top:8px">
-        <input type="text" id="memo_lunch" placeholder="例：ざるそば、サラダ">
-      </div>
+    <input type="file" id="photo_morning" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_morning')" style="display:none">
+    <div class="field" style="margin-top:8px;margin-bottom:0">
+      <input type="text" id="memo_morning" placeholder="例：納豆ご飯、味噌汁">
     </div>
-
-    <div class="meal-section">
-      <div class="meal-label">🌙 夕食</div>
-      <div class="photo-area" id="photoArea_dinner" onclick="document.getElementById('photo_dinner').click()">
-        <div class="icon">📷</div><p>写真を追加</p>
-      </div>
-      <input type="file" id="photo_dinner" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_dinner')">
-      <div class="field" style="margin-top:8px">
-        <input type="text" id="memo_dinner" placeholder="例：魚定食、豆腐">
-      </div>
-    </div>
+    <button class="btn-meal" id="btn_morning" onclick="recordMeal('morning')">朝食を記録する</button>
+    <div id="result_morning"></div>
   </div>
 
-  <button class="btn-primary" onclick="analyze()" id="analyzeBtn">
-    AIアドバイスを生成する
-  </button>
+  <!-- 昼食 -->
+  <div class="card">
+    <h2>☀️ 昼食</h2>
+    <div class="photo-area" id="photoArea_lunch" onclick="document.getElementById('photo_lunch').click()">
+      <div class="icon">📷</div><p>写真を追加</p>
+    </div>
+    <input type="file" id="photo_lunch" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_lunch')" style="display:none">
+    <div class="field" style="margin-top:8px;margin-bottom:0">
+      <input type="text" id="memo_lunch" placeholder="例：ざるそば、サラダ">
+    </div>
+    <button class="btn-meal" id="btn_lunch" onclick="recordMeal('lunch')">昼食を記録する</button>
+    <div id="result_lunch"></div>
+  </div>
+
+  <!-- 夕食 -->
+  <div class="card">
+    <h2>🌙 夕食</h2>
+    <div class="photo-area" id="photoArea_dinner" onclick="document.getElementById('photo_dinner').click()">
+      <div class="icon">📷</div><p>写真を追加</p>
+    </div>
+    <input type="file" id="photo_dinner" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_dinner')" style="display:none">
+    <div class="field" style="margin-top:8px;margin-bottom:0">
+      <input type="text" id="memo_dinner" placeholder="例：魚定食、豆腐">
+    </div>
+    <button class="btn-meal" id="btn_dinner" onclick="recordMeal('dinner')">夕食を記録する</button>
+    <div id="result_dinner"></div>
+  </div>
 </div>
 
 <!-- 結果ページ -->
@@ -184,7 +181,7 @@
   <div style="margin-top:14px" id="resultContent">
     <div class="empty">
       <div class="icon">🤖</div>
-      <p>「今日の記録」タブで<br>データを入力して分析してください</p>
+      <p>食事を記録すると<br>AIアドバイスが表示されます</p>
     </div>
   </div>
 </div>
@@ -195,11 +192,35 @@
 </div>
 
 <script>
-function showPage(name) {
+const TODAY_KEY = 'recovery_' + new Date().toISOString().slice(0, 10);
+const MEAL_LABELS = { morning: '朝食', lunch: '昼食', dinner: '夕食' };
+const BTN_TEXTS = { morning: '朝食を記録する', lunch: '昼食を記録する', dinner: '夕食を記録する' };
+
+window.addEventListener('load', () => {
+  const d = new Date();
+  document.getElementById('headerDate').textContent =
+    d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+  loadTodayData();
+});
+
+function loadTodayData() {
+  const saved = getTodayData();
+  if (saved.hrv) document.getElementById('hrv').value = saved.hrv;
+  if (saved.hr) document.getElementById('hr').value = saved.hr;
+  if (saved.sleep) document.getElementById('sleep').value = saved.sleep;
+  if (saved.fatigue) document.getElementById('fatigue').value = saved.fatigue;
+  if (saved.exercise) document.getElementById('exercise').value = saved.exercise;
+  ['morning', 'lunch', 'dinner'].forEach(meal => {
+    if (saved[meal + '_summary']) showMealDone(meal, saved[meal + '_summary']);
+  });
+  if (saved.latest_advice) renderAdvice(saved);
+}
+
+function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   if (name === 'history') renderHistory();
 }
 
@@ -207,7 +228,7 @@ function previewPhoto(input, areaId) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onload = ev => {
     const area = document.getElementById(areaId);
     area.classList.add('has-image');
     area.innerHTML = `<img src="${ev.target.result}" alt="食事写真">`;
@@ -215,102 +236,129 @@ function previewPhoto(input, areaId) {
   reader.readAsDataURL(file);
 }
 
-async function analyze() {
-  const hrv = document.getElementById('hrv').value;
-  const hr = document.getElementById('hr').value;
-  const sleep = document.getElementById('sleep').value;
-  const fatigue = document.getElementById('fatigue').value;
-  const exercise = document.getElementById('exercise').value;
-  const memo = document.getElementById('memo').value;
-  const photoFile = document.getElementById('photoInput').files[0];
+function getTodayData() {
+  return JSON.parse(localStorage.getItem(TODAY_KEY) || '{}');
+}
 
-  const btn = document.getElementById('analyzeBtn');
+function saveTodayData(update) {
+  const merged = { ...getTodayData(), ...update };
+  localStorage.setItem(TODAY_KEY, JSON.stringify(merged));
+  if (merged.latest_advice) updateHistory(merged);
+}
+
+function updateHistory(data) {
+  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
+  const dateKey = new Date().toISOString().slice(0, 10);
+  const entry = {
+    dateKey, date: new Date().toISOString(),
+    hrv: data.hrv, hr: data.hr, sleep: data.sleep,
+    fatigue: data.fatigue, exercise: data.exercise,
+    advice: data.latest_advice
+  };
+  const idx = history.findIndex(h => h.dateKey === dateKey);
+  if (idx >= 0) history[idx] = entry;
+  else history.unshift(entry);
+  if (history.length > 90) history.pop();
+  localStorage.setItem('recovery_history', JSON.stringify(history));
+}
+
+async function recordMeal(meal) {
+  const btn = document.getElementById('btn_' + meal);
+  const resultEl = document.getElementById('result_' + meal);
+
   btn.disabled = true;
   btn.textContent = '分析中...';
+  btn.classList.remove('done');
+  resultEl.innerHTML = `<div class="loading-inline"><div class="spinner-sm"></div><span style="font-size:0.85em;color:#64748b">AIが分析中...</span></div>`;
 
-  // 結果ページをローディング表示
-  document.getElementById('resultContent').innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>AIが分析中です...<br>少々お待ちください</p>
-    </div>`;
-  showPageDirect('result');
+  const vitals = {
+    hrv: document.getElementById('hrv').value,
+    hr: document.getElementById('hr').value,
+    sleep: document.getElementById('sleep').value,
+    fatigue: document.getElementById('fatigue').value,
+    exercise: document.getElementById('exercise').value,
+  };
+  saveTodayData(vitals);
 
+  const saved = getTodayData();
   const formData = new FormData();
-  formData.append('hrv', hrv);
-  formData.append('hr', hr);
-  formData.append('sleep', sleep);
-  formData.append('fatigue', fatigue);
-  formData.append('exercise', exercise);
-  formData.append('memo_morning', document.getElementById('memo_morning').value);
-  formData.append('memo_lunch', document.getElementById('memo_lunch').value);
-  formData.append('memo_dinner', document.getElementById('memo_dinner').value);
-  const morning = document.getElementById('photo_morning').files[0];
-  const lunch = document.getElementById('photo_lunch').files[0];
-  const dinner = document.getElementById('photo_dinner').files[0];
-  if (morning) formData.append('food_morning', morning);
-  if (lunch) formData.append('food_lunch', lunch);
-  if (dinner) formData.append('food_dinner', dinner);
+  Object.entries(vitals).forEach(([k, v]) => formData.append(k, v));
+
+  // 今回の食事（写真 or テキスト）
+  const photoFile = document.getElementById('photo_' + meal).files[0];
+  if (photoFile) formData.append('food_' + meal, photoFile);
+  formData.append('memo_' + meal, document.getElementById('memo_' + meal).value);
+
+  // 既に記録済みの他の食事はテキストで渡す
+  ['morning', 'lunch', 'dinner'].forEach(key => {
+    if (key !== meal && saved[key + '_summary']) {
+      formData.append('memo_' + key, saved[key + '_summary']);
+    }
+  });
 
   try {
     const res = await fetch('/api/analyze', { method: 'POST', body: formData });
     const data = await res.json();
 
-    const today = new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
-    const tags = [];
-    if (exercise !== 'なし') tags.push(exercise);
-    if (fatigue !== 'なし') tags.push(`だるさ：${fatigue}`);
+    const thisMealLabel = MEAL_LABELS[meal];
+    const mealData = data.meals.find(m => m.label === thisMealLabel);
+    const summary = mealData ? mealData.summary
+                  : document.getElementById('memo_' + meal).value || '記録済み';
 
-    let html = `
-      <div class="card">
-        <div style="font-size:0.82em;color:#94a3b8;margin-bottom:8px">${today}</div>
-        <div class="hrv-display">
-          <div class="num">${hrv || '—'}</div>
-          <div class="sub">HRV　睡眠 ${sleep || '—'}時間</div>
-        </div>
-        ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
-      </div>`;
-
-    if (data.meals && data.meals.length > 0) {
-      const icons = { '朝食': '🌅', '昼食': '☀️', '夕食': '🌙' };
-      html += `<div class="card"><h2>🥗 食事分析</h2>`;
-      data.meals.forEach(m => {
-        html += `<div class="meal-result"><strong>${icons[m.label] || ''} ${m.label}</strong><br>${m.summary}</div>`;
-      });
-      html += `</div>`;
-    }
-
-    html += `
-      <div class="advice-box" style="margin-top:14px">
-        <div class="label">🤖 今日のアドバイス</div>
-        <p>${data.advice || ''}</p>
-      </div>`;
-
-    document.getElementById('resultContent').innerHTML = html;
-
-    // 履歴に保存
-    saveHistory({ date: new Date().toISOString(), hrv, hr, sleep, fatigue, exercise, advice: data.advice });
+    saveTodayData({ [meal + '_summary']: summary, latest_advice: data.advice });
+    showMealDone(meal, summary);
+    renderAdvice(getTodayData());
 
   } catch(err) {
-    document.getElementById('resultContent').innerHTML = `<div class="card"><p style="color:#e63946">エラーが発生しました: ${err.message}</p></div>`;
+    resultEl.innerHTML = `<p style="color:#e63946;font-size:0.85em;padding:8px 0">エラー: ${err.message}</p>`;
+    btn.disabled = false;
+    btn.textContent = BTN_TEXTS[meal];
   }
+}
 
+function showMealDone(meal, summary) {
+  const btn = document.getElementById('btn_' + meal);
+  const resultEl = document.getElementById('result_' + meal);
   btn.disabled = false;
-  btn.textContent = 'AIアドバイスを生成する';
+  btn.textContent = `✓ ${MEAL_LABELS[meal]}を更新する`;
+  btn.classList.add('done');
+  resultEl.innerHTML = `
+    <div class="meal-done-box">
+      <div class="done-label">✓ 記録済み</div>
+      <p>${summary}</p>
+    </div>`;
 }
 
-function showPageDirect(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.querySelectorAll('.tab')[name === 'input' ? 0 : name === 'result' ? 1 : 2].classList.add('active');
-}
+function renderAdvice(data) {
+  const today = new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+  const tags = [];
+  if (data.exercise && data.exercise !== 'なし') tags.push(data.exercise);
+  if (data.fatigue && data.fatigue !== 'なし') tags.push(`だるさ：${data.fatigue}`);
 
-function saveHistory(data) {
-  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
-  history.unshift(data);
-  if (history.length > 90) history.pop();
-  localStorage.setItem('recovery_history', JSON.stringify(history));
+  const mealEntries = [
+    ['morning_summary', '🌅 朝食'],
+    ['lunch_summary', '☀️ 昼食'],
+    ['dinner_summary', '🌙 夕食'],
+  ];
+  const mealsHtml = mealEntries
+    .filter(([key]) => data[key])
+    .map(([key, label]) => `<div class="meal-result"><strong>${label}</strong><br>${data[key]}</div>`)
+    .join('');
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="card">
+      <div style="font-size:0.82em;color:#94a3b8;margin-bottom:8px">${today}</div>
+      <div class="hrv-display">
+        <div class="num">${data.hrv || '—'}</div>
+        <div class="sub">HRV　睡眠 ${data.sleep || '—'}時間</div>
+      </div>
+      ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    </div>
+    ${mealsHtml ? `<div class="card"><h2>🥗 今日の食事</h2>${mealsHtml}</div>` : ''}
+    <div class="advice-box">
+      <div class="label">🤖 最新のアドバイス</div>
+      <p>${data.latest_advice || ''}</p>
+    </div>`;
 }
 
 function renderHistory() {
