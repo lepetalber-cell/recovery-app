@@ -38,7 +38,7 @@ async function analyzeMealImage(filePath, mimeType, mealName) {
 
 app.post('/api/analyze', uploadFields, async (req, res) => {
   try {
-    const { hrv, hr, sleep, exercise, fatigue, memo_morning, memo_lunch, memo_dinner } = req.body;
+    const { hrv, hr, sleep, exercise, fatigue, drinking, memo_morning, memo_lunch, memo_dinner } = req.body;
     const files = req.files || {};
     const mealSummaries = [];
 
@@ -80,6 +80,7 @@ HRV: ${hrv || '未計測'}
 睡眠時間: ${sleep || '未入力'}時間
 運動: ${exercise || 'なし'}
 だるさ: ${fatigue || 'なし'}
+飲酒: ${drinking || 'なし'}
 
 【今日の食事】
 ${mealText}

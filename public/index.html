@@ -148,15 +148,25 @@
         </select>
       </div>
     </div>
-    <div class="field" style="margin-bottom:0">
-      <label>運動</label>
-      <select id="exercise">
-        <option value="なし">なし</option>
-        <option value="サーフィン">サーフィン</option>
-        <option value="ジム">ジム</option>
-        <option value="ウォーキング">ウォーキング</option>
-        <option value="その他">その他</option>
-      </select>
+    <div class="row2">
+      <div class="field">
+        <label>運動</label>
+        <select id="exercise">
+          <option value="なし">なし</option>
+          <option value="サーフィン">サーフィン</option>
+          <option value="ジム">ジム</option>
+          <option value="ウォーキング">ウォーキング</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>飲酒</label>
+        <select id="drinking">
+          <option value="なし">なし（断酒）</option>
+          <option value="あり">あり</option>
+          <option value="少量">少量</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -253,6 +263,7 @@ function loadTodayData() {
   if (saved.sleep) document.getElementById('sleep').value = saved.sleep;
   if (saved.fatigue) document.getElementById('fatigue').value = saved.fatigue;
   if (saved.exercise) document.getElementById('exercise').value = saved.exercise;
+  if (saved.drinking) document.getElementById('drinking').value = saved.drinking;
   ['morning', 'lunch', 'dinner'].forEach(meal => {
     if (saved[meal + '_summary']) showMealDone(meal, saved[meal + '_summary']);
   });
@@ -322,6 +333,7 @@ async function recordMeal(meal) {
     sleep: document.getElementById('sleep').value,
     fatigue: document.getElementById('fatigue').value,
     exercise: document.getElementById('exercise').value,
+    drinking: document.getElementById('drinking').value,
   };
   saveTodayData(vitals);
 
@@ -386,6 +398,7 @@ function renderAdvice(data) {
   const tags = [];
   if (data.exercise && data.exercise !== 'なし') tags.push(data.exercise);
   if (data.fatigue && data.fatigue !== 'なし') tags.push(`だるさ：${data.fatigue}`);
+  tags.push(data.drinking && data.drinking !== 'なし' ? `🍺 飲酒${data.drinking}` : '🚫 断酒');
 
   const mealEntries = [
     ['morning_summary', '🌅 朝食'],
