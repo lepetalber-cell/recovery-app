@@ -385,6 +385,8 @@ async function recordMeal(meal) {
 
     showMealDone(meal, summary);
     renderAdvice(getTodayData());
+    const resultTab = document.querySelectorAll('.tab')[1];
+    showPage('result', resultTab);
 
   } catch(err) {
     resultEl.innerHTML = `<p style="color:#e63946;font-size:0.85em;padding:8px 0">エラー: ${err.message}</p>`;
