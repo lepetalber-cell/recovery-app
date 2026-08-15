@@ -14,6 +14,7 @@ const uploadFields = upload.fields([
 ]);
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+app.disable('etag');
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -103,7 +104,8 @@ FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
     const advice = fullText.replace(/\n*FOOD_SCORE:[\s\S]*$/, '').trim();
     console.log('advice length:', advice.length, 'score:', score);
 
-    res.json({ meals: mealSummaries, advice, score });
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(Buffer.from(JSON.stringify({ meals: mealSummaries, advice, score }), 'utf8'));
 
   } catch (err) {
     console.error(err);
@@ -143,7 +145,8 @@ ${dataText}
       }]
     });
 
-    res.json({ report: reportRes.content[0].text });
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(Buffer.from(JSON.stringify({ report: reportRes.content[0].text }), 'utf8'));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
