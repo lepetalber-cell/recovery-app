@@ -375,7 +375,7 @@ async function recordMeal(meal) {
     const data = await res.json();
 
     const thisMealLabel = MEAL_LABELS[meal];
-    const mealData = data.meals.find(m => m.label === thisMealLabel);
+    const mealData = (data.meals || []).find(m => m.label === thisMealLabel);
     const summary = mealData ? mealData.summary
                   : document.getElementById('memo_' + meal).value || '記録済み';
 
