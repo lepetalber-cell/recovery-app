@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AIリカバリーコーチ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background: #f0f4f8; color: #1a2a3a; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #0ea5e9, #0369a1); color: white; padding: 20px 16px 16px; text-align: center; }
+  .header h1 { font-size: 1.3em; font-weight: 700; }
+  .header p { font-size: 0.85em; opacity: 0.85; margin-top: 4px; }
+
+  .tabs { display: flex; background: white; border-bottom: 2px solid #e2e8f0; }
+  .tab { flex: 1; padding: 14px 8px; text-align: center; font-size: 0.85em; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #0369a1; border-bottom-color: #0369a1; }
+
+  .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+  .card h2 { font-size: 0.95em; color: #0369a1; font-weight: 700; margin-bottom: 12px; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 0.82em; color: #64748b; font-weight: 600; margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    font-size: 1em; background: #f8fafc; transition: border 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #0369a1; background: white; }
+  .field textarea { height: 80px; resize: none; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .photo-area {
+    border: 2px dashed #cbd5e1; border-radius: 10px; padding: 24px 16px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: #f8fafc;
+  }
+  .photo-area:hover { border-color: #0369a1; background: #eff6ff; }
+  .photo-area.has-image { border-style: solid; border-color: #0369a1; padding: 8px; }
+  .photo-area img { max-width: 100%; border-radius: 8px; display: block; }
+  .photo-area .icon { font-size: 2em; margin-bottom: 8px; }
+  .photo-area p { font-size: 0.85em; color: #94a3b8; }
+  #photoInput { display: none; }
+
+  .btn-primary {
+    width: 100%; padding: 15px; background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    color: white; border: none; border-radius: 10px; font-size: 1.05em;
+    font-weight: 700; cursor: pointer; margin-top: 4px;
+  }
+  .btn-primary:disabled { opacity: 0.6; }
+
+  .advice-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 12px; padding: 18px; border-left: 4px solid #0369a1; }
+  .advice-box .label { font-size: 0.78em; color: #0369a1; font-weight: 700; margin-bottom: 8px; }
+  .advice-box p { font-size: 0.95em; line-height: 1.8; color: #1e3a5f; }
+
+  .food-result { background: #f0fdf4; border-radius: 10px; padding: 14px; margin-top: 12px; border-left: 4px solid #22c55e; }
+  .food-result .label { font-size: 0.78em; color: #16a34a; font-weight: 700; margin-bottom: 6px; }
+
+  .loading { text-align: center; padding: 30px; }
+  .loading .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #0369a1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: #64748b; font-size: 0.9em; }
+
+  .history-item { background: white; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .history-item .date { font-size: 0.78em; color: #94a3b8; margin-bottom: 6px; }
+  .history-item .hrv-badge { display: inline-block; background: #0369a1; color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.85em; font-weight: 700; margin-bottom: 8px; }
+  .history-item .adv { font-size: 0.85em; color: #475569; line-height: 1.7; }
+
+  .empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
+  .empty .icon { font-size: 3em; margin-bottom: 12px; }
+
+  .hrv-display { text-align: center; padding: 8px 0; }
+  .hrv-display .num { font-size: 3em; font-weight: 700; color: #0369a1; }
+  .hrv-display .sub { font-size: 0.8em; color: #94a3b8; }
+
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .tag { background: #e0f2fe; color: #0369a1; border-radius: 20px; padding: 3px 10px; font-size: 0.78em; font-weight: 600; }
+  .meal-section { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .meal-label { font-size: 0.88em; font-weight: 700; color: #0369a1; margin-bottom: 8px; }
+  .meal-result { background: #f0fdf4; border-radius: 8px; padding: 10px 12px; margin-top: 10px; border-left: 3px solid #22c55e; font-size: 0.85em; color: #166534; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌊 AIリカバリーコーチ</h1>
+  <p>毎日の体の状態を記録・分析</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPage('input')">今日の記録</div>
+  <div class="tab" onclick="showPage('result')">AIアドバイス</div>
+  <div class="tab" onclick="showPage('history')">履歴</div>
+</div>
+
+<!-- 入力ページ -->
+<div class="page active" id="page-input">
+
+  <div class="card" style="margin-top:14px">
+    <h2>HRV・体の状態</h2>
+    <div class="row2">
+      <div class="field">
+        <label>HRV</label>
+        <input type="number" id="hrv" placeholder="例：63" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>心拍数（HR）</label>
+        <input type="number" id="hr" placeholder="例：62" inputmode="numeric">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>睡眠時間（時間）</label>
+        <input type="number" id="sleep" placeholder="例：7" step="0.5" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>だるさ</label>
+        <select id="fatigue">
+          <option value="なし">なし</option>
+          <option value="少しあり">少しあり</option>
+          <option value="あり">あり</option>
+          <option value="かなりあり">かなりあり</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>運動</label>
+      <select id="exercise">
+        <option value="なし">なし</option>
+        <option value="サーフィン">サーフィン</option>
+        <option value="ジム">ジム</option>
+        <option value="ウォーキング">ウォーキング</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>食事の記録（任意）</h2>
+
+    <div class="meal-section">
+      <div class="meal-label">🌅 朝食</div>
+      <div class="photo-area" id="photoArea_morning" onclick="document.getElementById('photo_morning').click()">
+        <div class="icon">📷</div><p>写真を追加</p>
+      </div>
+      <input type="file" id="photo_morning" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_morning')">
+      <div class="field" style="margin-top:8px">
+        <input type="text" id="memo_morning" placeholder="例：納豆ご飯、味噌汁">
+      </div>
+    </div>
+
+    <div class="meal-section">
+      <div class="meal-label">☀️ 昼食</div>
+      <div class="photo-area" id="photoArea_lunch" onclick="document.getElementById('photo_lunch').click()">
+        <div class="icon">📷</div><p>写真を追加</p>
+      </div>
+      <input type="file" id="photo_lunch" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_lunch')">
+      <div class="field" style="margin-top:8px">
+        <input type="text" id="memo_lunch" placeholder="例：ざるそば、サラダ">
+      </div>
+    </div>
+
+    <div class="meal-section">
+      <div class="meal-label">🌙 夕食</div>
+      <div class="photo-area" id="photoArea_dinner" onclick="document.getElementById('photo_dinner').click()">
+        <div class="icon">📷</div><p>写真を追加</p>
+      </div>
+      <input type="file" id="photo_dinner" accept="image/*" capture="environment" onchange="previewPhoto(this,'photoArea_dinner')">
+      <div class="field" style="margin-top:8px">
+        <input type="text" id="memo_dinner" placeholder="例：魚定食、豆腐">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="analyze()" id="analyzeBtn">
+    AIアドバイスを生成する
+  </button>
+</div>
+
+<!-- 結果ページ -->
+<div class="page" id="page-result">
+  <div style="margin-top:14px" id="resultContent">
+    <div class="empty">
+      <div class="icon">🤖</div>
+      <p>「今日の記録」タブで<br>データを入力して分析してください</p>
+    </div>
+  </div>
+</div>
+
+<!-- 履歴ページ -->
+<div class="page" id="page-history">
+  <div style="margin-top:14px" id="historyContent"></div>
+</div>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'history') renderHistory();
+}
+
+function previewPhoto(input, areaId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const area = document.getElementById(areaId);
+    area.classList.add('has-image');
+    area.innerHTML = `<img src="${ev.target.result}" alt="食事写真">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyze() {
+  const hrv = document.getElementById('hrv').value;
+  const hr = document.getElementById('hr').value;
+  const sleep = document.getElementById('sleep').value;
+  const fatigue = document.getElementById('fatigue').value;
+  const exercise = document.getElementById('exercise').value;
+  const memo = document.getElementById('memo').value;
+  const photoFile = document.getElementById('photoInput').files[0];
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+
+  // 結果ページをローディング表示
+  document.getElementById('resultContent').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>AIが分析中です...<br>少々お待ちください</p>
+    </div>`;
+  showPageDirect('result');
+
+  const formData = new FormData();
+  formData.append('hrv', hrv);
+  formData.append('hr', hr);
+  formData.append('sleep', sleep);
+  formData.append('fatigue', fatigue);
+  formData.append('exercise', exercise);
+  formData.append('memo_morning', document.getElementById('memo_morning').value);
+  formData.append('memo_lunch', document.getElementById('memo_lunch').value);
+  formData.append('memo_dinner', document.getElementById('memo_dinner').value);
+  const morning = document.getElementById('photo_morning').files[0];
+  const lunch = document.getElementById('photo_lunch').files[0];
+  const dinner = document.getElementById('photo_dinner').files[0];
+  if (morning) formData.append('food_morning', morning);
+  if (lunch) formData.append('food_lunch', lunch);
+  if (dinner) formData.append('food_dinner', dinner);
+
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    const today = new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+    const tags = [];
+    if (exercise !== 'なし') tags.push(exercise);
+    if (fatigue !== 'なし') tags.push(`だるさ：${fatigue}`);
+
+    let html = `
+      <div class="card">
+        <div style="font-size:0.82em;color:#94a3b8;margin-bottom:8px">${today}</div>
+        <div class="hrv-display">
+          <div class="num">${hrv || '—'}</div>
+          <div class="sub">HRV　睡眠 ${sleep || '—'}時間</div>
+        </div>
+        ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+      </div>`;
+
+    if (data.meals && data.meals.length > 0) {
+      const icons = { '朝食': '🌅', '昼食': '☀️', '夕食': '🌙' };
+      html += `<div class="card"><h2>🥗 食事分析</h2>`;
+      data.meals.forEach(m => {
+        html += `<div class="meal-result"><strong>${icons[m.label] || ''} ${m.label}</strong><br>${m.summary}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `
+      <div class="advice-box" style="margin-top:14px">
+        <div class="label">🤖 今日のアドバイス</div>
+        <p>${data.advice || ''}</p>
+      </div>`;
+
+    document.getElementById('resultContent').innerHTML = html;
+
+    // 履歴に保存
+    saveHistory({ date: new Date().toISOString(), hrv, hr, sleep, fatigue, exercise, advice: data.advice });
+
+  } catch(err) {
+    document.getElementById('resultContent').innerHTML = `<div class="card"><p style="color:#e63946">エラーが発生しました: ${err.message}</p></div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'AIアドバイスを生成する';
+}
+
+function showPageDirect(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.tab')[name === 'input' ? 0 : name === 'result' ? 1 : 2].classList.add('active');
+}
+
+function saveHistory(data) {
+  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
+  history.unshift(data);
+  if (history.length > 90) history.pop();
+  localStorage.setItem('recovery_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
+  const el = document.getElementById('historyContent');
+  if (!history.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">📋</div><p>まだ記録がありません</p></div>`;
+    return;
+  }
+  el.innerHTML = history.map(item => {
+    const d = new Date(item.date);
+    const dateStr = d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+    return `
+      <div class="history-item">
+        <div class="date">${dateStr}</div>
+        <span class="hrv-badge">HRV ${item.hrv || '—'}</span>
+        <span style="font-size:0.8em;color:#64748b;margin-left:8px">睡眠 ${item.sleep || '—'}時間 / ${item.exercise || 'なし'}</span>
+        <div class="adv">${item.advice ? item.advice.substring(0, 120) + (item.advice.length > 120 ? '...' : '') : ''}</div>
+      </div>`;
+  }).join('');
+}
+</script>
+
+</body>
+</html>
