@@ -50,6 +50,13 @@
   .btn-meal:disabled { opacity: 0.6; cursor: not-allowed; }
   .btn-meal.done { background: linear-gradient(135deg, #22c55e, #16a34a); }
 
+  .btn-secondary {
+    width: 100%; padding: 12px; background: white; color: #0369a1;
+    border: 2px solid #0369a1; border-radius: 10px; font-size: 0.95em;
+    font-weight: 700; cursor: pointer; margin-bottom: 14px;
+  }
+  .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
   .meal-done-box { background: #f0fdf4; border-radius: 10px; padding: 12px; margin-top: 10px; border-left: 3px solid #22c55e; }
   .meal-done-box .done-label { font-size: 0.78em; color: #16a34a; font-weight: 700; margin-bottom: 4px; }
   .meal-done-box p { font-size: 0.85em; color: #166534; line-height: 1.6; }
@@ -58,8 +65,18 @@
   .advice-box .label { font-size: 0.78em; color: #0369a1; font-weight: 700; margin-bottom: 8px; }
   .advice-box p { font-size: 0.95em; line-height: 1.8; color: #1e3a5f; }
 
+  .score-card { text-align: center; padding: 8px 0; }
+  .score-total { font-size: 3.2em; font-weight: 700; line-height: 1.1; }
+  .score-label { font-size: 0.8em; color: #64748b; margin-top: 2px; }
+  .score-subs { display: flex; justify-content: center; gap: 24px; margin-top: 12px; }
+  .score-sub { text-align: center; }
+  .score-sub .val { font-size: 1.4em; font-weight: 700; }
+  .score-sub .lbl { font-size: 0.75em; color: #64748b; }
+
   .loading-inline { display: flex; align-items: center; gap: 10px; padding: 12px 0; }
   .spinner-sm { width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0369a1; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  .loading-lg { text-align: center; padding: 24px 0; }
+  .spinner-lg { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #0369a1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .hrv-display { text-align: center; padding: 8px 0; }
@@ -69,9 +86,20 @@
   .tag { background: #e0f2fe; color: #0369a1; border-radius: 20px; padding: 3px 10px; font-size: 0.78em; font-weight: 600; }
   .meal-result { background: #f0fdf4; border-radius: 8px; padding: 10px 12px; margin-top: 8px; border-left: 3px solid #22c55e; font-size: 0.85em; color: #166534; line-height: 1.6; }
 
+  .chart-wrap { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+  .chart-wrap h2 { font-size: 0.95em; color: #0369a1; font-weight: 700; margin-bottom: 12px; }
+  #hrvChart { width: 100%; display: block; }
+  .chart-nodata { text-align: center; padding: 20px; color: #94a3b8; font-size: 0.85em; }
+
+  .report-box { background: #fffbeb; border-radius: 12px; padding: 16px; margin-bottom: 14px; border-left: 4px solid #f59e0b; }
+  .report-box h3 { font-size: 0.9em; color: #92400e; font-weight: 700; margin-bottom: 10px; }
+  .report-box textarea { width: 100%; height: 300px; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px; font-size: 0.85em; line-height: 1.7; background: #fffff5; resize: vertical; }
+  .btn-copy { width: 100%; padding: 10px; background: #f59e0b; color: white; border: none; border-radius: 8px; font-size: 0.9em; font-weight: 700; cursor: pointer; margin-top: 8px; }
+
   .history-item { background: white; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
   .history-item .date { font-size: 0.78em; color: #94a3b8; margin-bottom: 6px; }
   .history-item .hrv-badge { display: inline-block; background: #0369a1; color: white; border-radius: 20px; padding: 3px 12px; font-size: 0.85em; font-weight: 700; margin-bottom: 8px; }
+  .history-item .score-badge { display: inline-block; border-radius: 20px; padding: 3px 10px; font-size: 0.82em; font-weight: 700; margin-left: 6px; }
   .history-item .adv { font-size: 0.85em; color: #475569; line-height: 1.7; margin-top: 6px; }
 
   .empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
@@ -93,7 +121,6 @@
 
 <!-- 入力ページ -->
 <div class="page active" id="page-input">
-
   <div class="card" style="margin-top:14px">
     <h2>HRV・体の状態</h2>
     <div class="row2">
@@ -188,7 +215,23 @@
 
 <!-- 履歴ページ -->
 <div class="page" id="page-history">
-  <div style="margin-top:14px" id="historyContent"></div>
+  <div style="margin-top:14px">
+    <!-- HRVグラフ -->
+    <div class="chart-wrap">
+      <h2>📈 HRVトレンド（直近14日）</h2>
+      <canvas id="hrvChart" height="160"></canvas>
+      <div class="chart-nodata" id="chartNoData" style="display:none">2日分以上記録するとグラフが表示されます</div>
+    </div>
+
+    <!-- 週次レポート -->
+    <button class="btn-secondary" id="reportBtn" onclick="generateWeeklyReport()">
+      📝 今週のnote記事下書きを生成
+    </button>
+    <div id="reportArea"></div>
+
+    <!-- 履歴リスト -->
+    <div id="historyContent"></div>
+  </div>
 </div>
 
 <script>
@@ -221,7 +264,10 @@ function showPage(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
-  if (name === 'history') renderHistory();
+  if (name === 'history') {
+    renderHistory();
+    drawHrvChart();
+  }
 }
 
 function previewPhoto(input, areaId) {
@@ -236,9 +282,7 @@ function previewPhoto(input, areaId) {
   reader.readAsDataURL(file);
 }
 
-function getTodayData() {
-  return JSON.parse(localStorage.getItem(TODAY_KEY) || '{}');
-}
+function getTodayData() { return JSON.parse(localStorage.getItem(TODAY_KEY) || '{}'); }
 
 function saveTodayData(update) {
   const merged = { ...getTodayData(), ...update };
@@ -253,7 +297,8 @@ function updateHistory(data) {
     dateKey, date: new Date().toISOString(),
     hrv: data.hrv, hr: data.hr, sleep: data.sleep,
     fatigue: data.fatigue, exercise: data.exercise,
-    advice: data.latest_advice
+    advice: data.latest_advice,
+    score: data.food_score ? data.food_score.total : null
   };
   const idx = history.findIndex(h => h.dateKey === dateKey);
   if (idx >= 0) history[idx] = entry;
@@ -284,12 +329,10 @@ async function recordMeal(meal) {
   const formData = new FormData();
   Object.entries(vitals).forEach(([k, v]) => formData.append(k, v));
 
-  // 今回の食事（写真 or テキスト）
   const photoFile = document.getElementById('photo_' + meal).files[0];
   if (photoFile) formData.append('food_' + meal, photoFile);
   formData.append('memo_' + meal, document.getElementById('memo_' + meal).value);
 
-  // 既に記録済みの他の食事はテキストで渡す
   ['morning', 'lunch', 'dinner'].forEach(key => {
     if (key !== meal && saved[key + '_summary']) {
       formData.append('memo_' + key, saved[key + '_summary']);
@@ -305,7 +348,10 @@ async function recordMeal(meal) {
     const summary = mealData ? mealData.summary
                   : document.getElementById('memo_' + meal).value || '記録済み';
 
-    saveTodayData({ [meal + '_summary']: summary, latest_advice: data.advice });
+    const update = { [meal + '_summary']: summary, latest_advice: data.advice };
+    if (data.score) update.food_score = data.score;
+    saveTodayData(update);
+
     showMealDone(meal, summary);
     renderAdvice(getTodayData());
 
@@ -329,6 +375,12 @@ function showMealDone(meal, summary) {
     </div>`;
 }
 
+function scoreColor(total) {
+  if (total >= 71) return '#16a34a';
+  if (total >= 51) return '#d97706';
+  return '#dc2626';
+}
+
 function renderAdvice(data) {
   const today = new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
   const tags = [];
@@ -345,6 +397,24 @@ function renderAdvice(data) {
     .map(([key, label]) => `<div class="meal-result"><strong>${label}</strong><br>${data[key]}</div>`)
     .join('');
 
+  let scoreHtml = '';
+  if (data.food_score) {
+    const { ai, gut, total } = data.food_score;
+    const col = scoreColor(total);
+    scoreHtml = `
+      <div class="card">
+        <h2>🥗 今日の食事スコア</h2>
+        <div class="score-card">
+          <div class="score-total" style="color:${col}">${total}<span style="font-size:0.5em;color:#64748b">点</span></div>
+          <div class="score-label">/ 100点満点</div>
+          <div class="score-subs">
+            <div class="score-sub"><div class="val" style="color:${col}">${ai}</div><div class="lbl">抗炎症</div></div>
+            <div class="score-sub"><div class="val" style="color:${col}">${gut}</div><div class="lbl">腸活</div></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
   document.getElementById('resultContent').innerHTML = `
     <div class="card">
       <div style="font-size:0.82em;color:#94a3b8;margin-bottom:8px">${today}</div>
@@ -354,6 +424,7 @@ function renderAdvice(data) {
       </div>
       ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
     </div>
+    ${scoreHtml}
     ${mealsHtml ? `<div class="card"><h2>🥗 今日の食事</h2>${mealsHtml}</div>` : ''}
     <div class="advice-box">
       <div class="label">🤖 最新のアドバイス</div>
@@ -361,6 +432,139 @@ function renderAdvice(data) {
     </div>`;
 }
 
+// ── HRVグラフ ──────────────────────────────
+function drawHrvChart() {
+  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
+  const canvas = document.getElementById('hrvChart');
+  const noData = document.getElementById('chartNoData');
+
+  const valid = history.filter(h => parseInt(h.hrv) > 0).slice(0, 14).reverse();
+
+  if (valid.length < 2) {
+    canvas.style.display = 'none';
+    noData.style.display = 'block';
+    return;
+  }
+  canvas.style.display = 'block';
+  noData.style.display = 'none';
+
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth;
+  const H = 160;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pL = 36, pR = 16, pT = 24, pB = 28;
+  const values = valid.map(d => parseInt(d.hrv));
+  const minV = Math.max(0, Math.min(...values) - 10);
+  const maxV = Math.max(...values) + 10;
+  const n = valid.length;
+
+  const getX = i => pL + i * (W - pL - pR) / (n - 1);
+  const getY = v => H - pB - (v - minV) / (maxV - minV) * (H - pT - pB);
+
+  // grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const y = pT + (H - pT - pB) * t;
+    ctx.beginPath(); ctx.moveTo(pL, y); ctx.lineTo(W - pR, y); ctx.stroke();
+    const val = Math.round(maxV - t * (maxV - minV));
+    ctx.fillStyle = '#cbd5e1'; ctx.font = `${10 * dpr / dpr}px sans-serif`; ctx.textAlign = 'right';
+    ctx.fillText(val, pL - 4, y + 4);
+  });
+
+  // fill under line
+  const grad = ctx.createLinearGradient(0, pT, 0, H - pB);
+  grad.addColorStop(0, 'rgba(3,105,161,0.2)');
+  grad.addColorStop(1, 'rgba(3,105,161,0)');
+  ctx.beginPath();
+  valid.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(getX(i), getY(parseInt(d.hrv))) : ctx.lineTo(getX(i), getY(parseInt(d.hrv)));
+  });
+  ctx.lineTo(getX(n - 1), H - pB);
+  ctx.lineTo(getX(0), H - pB);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // line
+  ctx.strokeStyle = '#0369a1'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  valid.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(getX(i), getY(parseInt(d.hrv))) : ctx.lineTo(getX(i), getY(parseInt(d.hrv)));
+  });
+  ctx.stroke();
+
+  // dots + labels
+  valid.forEach((d, i) => {
+    const v = parseInt(d.hrv);
+    const x = getX(i); const y = getY(v);
+    ctx.fillStyle = '#0369a1';
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1e3a5f'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(v, x, y - 8);
+    if (n <= 7 || i % 2 === 0) {
+      const ds = new Date(d.date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+      ctx.fillStyle = '#94a3b8'; ctx.font = '10px sans-serif';
+      ctx.fillText(ds, x, H - 6);
+    }
+  });
+}
+
+// ── 週次レポート ───────────────────────────
+async function generateWeeklyReport() {
+  const btn = document.getElementById('reportBtn');
+  const area = document.getElementById('reportArea');
+
+  const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
+  if (history.length === 0) {
+    area.innerHTML = `<p style="color:#94a3b8;font-size:0.85em;padding:8px 0">記録がまだありません</p>`;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '生成中...';
+  area.innerHTML = `<div class="loading-lg"><div class="spinner-lg"></div><p style="color:#64748b;font-size:0.9em">note記事の下書きを作成中...</p></div>`;
+
+  const records = history.slice(0, 7).map(r => ({
+    dateStr: new Date(r.date).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' }),
+    hrv: r.hrv, sleep: r.sleep, exercise: r.exercise, score: r.score
+  }));
+
+  try {
+    const res = await fetch('/api/weekly-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records })
+    });
+    const data = await res.json();
+    area.innerHTML = `
+      <div class="report-box">
+        <h3>📝 note記事の下書き（直近7日間）</h3>
+        <textarea id="reportText" readonly>${data.report}</textarea>
+        <button class="btn-copy" onclick="copyReport()">コピーする</button>
+      </div>`;
+  } catch(err) {
+    area.innerHTML = `<p style="color:#e63946;font-size:0.85em">エラー: ${err.message}</p>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📝 今週のnote記事下書きを生成';
+}
+
+function copyReport() {
+  const text = document.getElementById('reportText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ コピーしました';
+    setTimeout(() => btn.textContent = 'コピーする', 2000);
+  });
+}
+
+// ── 履歴リスト ────────────────────────────
 function renderHistory() {
   const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
   const el = document.getElementById('historyContent');
@@ -371,11 +575,15 @@ function renderHistory() {
   el.innerHTML = history.map(item => {
     const d = new Date(item.date);
     const dateStr = d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+    const col = item.score ? scoreColor(item.score) : null;
+    const scoreBadge = item.score
+      ? `<span class="score-badge" style="background:${col}22;color:${col}">食事 ${item.score}点</span>`
+      : '';
     return `
       <div class="history-item">
         <div class="date">${dateStr}</div>
-        <span class="hrv-badge">HRV ${item.hrv || '—'}</span>
-        <span style="font-size:0.8em;color:#64748b;margin-left:8px">睡眠 ${item.sleep || '—'}時間 / ${item.exercise || 'なし'}</span>
+        <span class="hrv-badge">HRV ${item.hrv || '—'}</span>${scoreBadge}
+        <span style="font-size:0.8em;color:#64748b;margin-left:6px">睡眠 ${item.sleep || '—'}時間 / ${item.exercise || 'なし'}</span>
         <div class="adv">${item.advice ? item.advice.substring(0, 120) + (item.advice.length > 120 ? '...' : '') : ''}</div>
       </div>`;
   }).join('');
