@@ -375,9 +375,10 @@ async function recordMeal(meal) {
     const data = await res.json();
 
     const thisMealLabel = MEAL_LABELS[meal];
+    console.log('server response:', JSON.stringify(data));
     const mealData = (data.meals || []).find(m => m.label === thisMealLabel);
-    const summary = mealData ? mealData.summary
-                  : document.getElementById('memo_' + meal).value || '記録済み';
+    const memoVal = document.getElementById('memo_' + meal).value;
+    const summary = mealData ? mealData.summary : (memoVal || '記録済み');
 
     const update = { [meal + '_summary']: summary, latest_advice: data.advice };
     if (data.score) update.food_score = data.score;
@@ -462,7 +463,7 @@ function renderAdvice(data) {
     ${mealsHtml ? `<div class="card"><h2>🥗 今日の食事</h2>${mealsHtml}</div>` : ''}
     <div class="advice-box">
       <div class="label">🤖 最新のアドバイス</div>
-      <p>${data.latest_advice || ''}</p>
+      <p>${(data.latest_advice || '').replace(/\n/g, '<br>')}</p>
     </div>`;
 }
 

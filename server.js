@@ -93,14 +93,15 @@ FOOD_SCORE:{"ai":抗炎症スコア,"gut":腸活スコア}`
     });
 
     const fullText = adviceRes.content[0].text;
-    const scoreMatch = fullText.match(/FOOD_SCORE:\{"ai":(\d+),"gut":(\d+)\}/);
+    const scoreMatch = fullText.match(/FOOD_SCORE:\s*\{\s*"ai"\s*:\s*(\d+)\s*,\s*"gut"\s*:\s*(\d+)\s*\}/);
     let score = null;
     if (scoreMatch) {
       const ai = parseInt(scoreMatch[1]);
       const gut = parseInt(scoreMatch[2]);
       score = { ai, gut, total: Math.round((ai + gut) / 2) };
     }
-    const advice = fullText.replace(/\nFOOD_SCORE:.*$/, '').trim();
+    const advice = fullText.replace(/\n*FOOD_SCORE:[\s\S]*$/, '').trim();
+    console.log('advice length:', advice.length, 'score:', score);
 
     res.json({ meals: mealSummaries, advice, score });
 
