@@ -247,7 +247,11 @@
 </div>
 
 <script>
-const TODAY_KEY = 'recovery_' + new Date().toISOString().slice(0, 10);
+function localDateStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+const TODAY_KEY = 'recovery_' + localDateStr();
 const MEAL_LABELS = { morning: '朝食', lunch: '昼食', dinner: '夕食' };
 const BTN_TEXTS = { morning: '朝食を記録する', lunch: '昼食を記録する', dinner: '夕食を記録する' };
 
@@ -306,7 +310,7 @@ function saveTodayData(update) {
 function updateHistory(data) {
   if (!data.hrv) return;
   const history = JSON.parse(localStorage.getItem('recovery_history') || '[]');
-  const dateKey = new Date().toISOString().slice(0, 10);
+  const dateKey = localDateStr();
   const entry = {
     dateKey, date: new Date().toISOString(),
     hrv: data.hrv, hr: data.hr, sleep: data.sleep,
